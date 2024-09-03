@@ -29,7 +29,7 @@ class FirstTest extends org.scalatest.FlatSpec with org.scalatest.Matchers {
 
     chisel3.iotesters.Driver{
       warn("synthesizing module");
-      () => new MyModule(3)}
+      () => new MyModule(2)}
     { c =>
       warn("MyModule has been synthesized successfully!")
       new TestRunner(c)
@@ -54,7 +54,11 @@ class MyModule(val incrementBy: Int) extends chisel3.Module {
     This is the body of MyModule
     */
 
-  io.dataOut := 0.U
+  val regA = RegInit(2.U(4.W))
+  val regB = RegInit(1.U(4.W))
+  regA := regB
+  regB := regA
+  io.dataOut := regA
 
   // The commented code is supplied so that you should have an idea of what you should
   // end up with when you're through the introductionary section.
@@ -81,6 +85,12 @@ class TestRunner(c: MyModule) extends chisel3.iotesters.PeekPokeTester(c)  {
   /**
     This is the body of the TestRunner
     */
+  for(ii <- 0 until 10){
+    poke(c.io.dataIn, ii.U)
+    val o3 = peek(c.io.dataOut)
+    say(s"observed stat at iteration $ii: $o3")
+    step(1)
+  }
 
   // The commented code is supplied so that you should have an idea of what you should
   // end up with when you're through the introductionary section.

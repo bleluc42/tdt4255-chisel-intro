@@ -33,7 +33,7 @@ class DotProdSpec extends FlatSpec with Matchers {
 
   it should "Calculate the correct output and signal when appropriate" in {
     wrapTester(
-      chisel3.iotesters.Driver(() => new DotProd(elements)) { c =>
+      chisel3.iotesters.Driver.execute(Array("--generate-vcd-output", "on", "--backend-name", "treadle", "--target-dir", "waveforms", "--top-name", "DotProd"), () => new DotProd(elements)) { c =>
         new CalculatesCorrectResultAndSignals(c)
       } should be(true)
     )

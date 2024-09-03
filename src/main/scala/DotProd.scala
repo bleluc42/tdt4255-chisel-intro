@@ -20,12 +20,21 @@ class DotProd(val elements: Int) extends Module {
     * Your code here
     */
   val counter = Counter(elements)
+  counter.inc()
+
   val accumulator = RegInit(UInt(32.W), 0.U)
 
-  // Please don't manually implement product!
   val product = io.dataInA * io.dataInB
 
-  // placeholder
-  io.dataOut := 0.U
-  io.outputValid := false.B
+  accumulator := accumulator + product
+
+  io.dataOut := accumulator + product
+
+
+  when(counter.value === (elements - 1).U){
+    io.outputValid := true.B
+    accumulator := 0.U
+  }.otherwise{
+    io.outputValid := false.B
+  }
 }

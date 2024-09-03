@@ -18,7 +18,16 @@ class MatMul(val rowDimsA: Int, val colDimsA: Int) extends MultiIOModule {
 
   val debug = IO(
     new Bundle {
-      val myDebugSignal = Output(Bool())
+      val debug_writeEn = Output(Bool())
+      val debug_execute = Output(Bool())
+      val debug_dotProdValid = Output(Bool())
+      val debug_rowA = Output(UInt(32.W))
+      val debug_colA = Output(UInt(32.W))
+      val debug_rowB = Output(UInt(32.W))
+      val debug_colB = Output(UInt(32.W))
+      val debug_MaAout = Output(UInt(32.W))
+      val debug_MaBout = Output(UInt(32.W))
+
     }
   )
 
@@ -29,23 +38,38 @@ class MatMul(val rowDimsA: Int, val colDimsA: Int) extends MultiIOModule {
   val matrixA     = Module(new Matrix(rowDimsA, colDimsA)).io
   val matrixB     = Module(new Matrix(rowDimsA, colDimsA)).io
   val dotProdCalc = Module(new DotProd(colDimsA)).io
+  val control     = Module(new Control(rowDimsA, colDimsA)).io
+  
+  matrixA.writeEnable := control.writeEnable
+  matrixB.writeEnable := control.writeEnable
 
-  matrixA.dataIn      := 0.U
-  matrixA.rowIdx      := 0.U
-  matrixA.colIdx      := 0.U
-  matrixA.writeEnable := false.B
+  matrixA.rowIdx := control.rowMaA
+  matrixA.colIdx := control.colMaA
+  matrixB.rowIdx := control.rowMaB
+  matrixB.colIdx := control.colMaB
 
-  matrixB.rowIdx      := 0.U
-  matrixB.colIdx      := 0.U
-  matrixB.dataIn      := 0.U
-  matrixB.writeEnable := false.B
+  matrixA.dataIn := io.dataInA
+  matrixB.dataIn := io.dataInB
 
-  dotProdCalc.dataInA := 0.U
-  dotProdCalc.dataInB := 0.U
+  dotProdCalc.dataInA := matrixA.dataOut
+  dotProdCalc.dataInB := matrixB.dataOut
 
-  io.dataOut := 0.U
-  io.outputValid := false.B
+  when(control.execute){
+    io.outputValid := dotProdCalc.outputValid
+  }.otherwise{
+    io.outputValid := false.B
+  }
 
+  io.dataOut := dotProdCalc.dataOut
 
-  debug.myDebugSignal := false.B
+  debug.debug_writeEn := control.writeEnable
+  debug.debug_execute := control.execute
+  debug.debug_dotProdValid := dotProdCalc.outputValid
+  debug.debug_rowA := control.rowMaA
+  debug.debug_colA := control.colMaA
+  debug.debug_rowB := control.rowMaB
+  debug.debug_colB := control.colMaB
+  debug.debug_MaAout := matrixA.dataOut
+  debug.debug_MaBout := matrixB.dataOut
+  
 }

@@ -28,7 +28,7 @@ class DelaySpec extends FlatSpec with Matchers {
   behavior of "SimpleDelay"
 
   it should "Delay input by one timestep" in {
-    chisel3.iotesters.Driver.execute(Array("--generate-vcd-output", "on", "--backend-name", "treadle"), () => new SimpleDelay) { c =>
+    chisel3.iotesters.Driver(() => new SimpleDelay, verbose = true) { c =>
       new DelayTester(c)
     } should be(true)
   }
