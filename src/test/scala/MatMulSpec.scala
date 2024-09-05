@@ -8,7 +8,7 @@ import TestUtils._
 class MatMulSpec extends FlatSpec with Matchers {
   import MatMulTests._
 
-  val rowDims = 3
+  val rowDims = 5
   val colDims = 7
 
 

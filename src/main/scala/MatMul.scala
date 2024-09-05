@@ -62,6 +62,7 @@ class MatMul(val rowDimsA: Int, val colDimsA: Int) extends MultiIOModule {
 
   io.dataOut := dotProdCalc.dataOut
 
+  // Debug signals
   debug.debug_writeEn := control.writeEnable
   debug.debug_execute := control.execute
   debug.debug_dotProdValid := dotProdCalc.outputValid
